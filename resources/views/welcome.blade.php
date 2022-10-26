@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <title></title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  @vite('resources/css/app.css')
 </head>
 
 <body class="grid gap-7 p-10">
@@ -16,7 +16,7 @@
       <option value="20" {{ $perPage == 20 ? 'selected' : '' }}>20</option>
     </select>
     @foreach ($qp as $name => $value)
-      @if ($name !== 'perPage')
+      @if ($name !== 'per-page')
         <input type="hidden" name="{{ $name }}" value={{ $value }}>
       @endif
     @endforeach
@@ -34,13 +34,17 @@
     <button type="submit">Filter contact list</button>
   </form>
 
-  {{-- {{ dd($qp) }} --}}
   <table>
     <thead>
       <tr>
-        <td><a href="{!! '/?sort-field=name&' . preg_replace("/sort-field=([^&]+).*$/", '', http_build_query($qp)) !!}">name</a></td>
-        <td><a href="{!! '/?sort-field=email&' . preg_replace("/sort-field=([^&]+).*$/", '', http_build_query($qp)) !!}">Email</a></td>
-        <td><a href="{!! '/?sort-field=birthdate&' . preg_replace("/sort-field=([^&]+).*$/", '', http_build_query($qp)) !!}">Birthdate</a></td>
+        @php
+          $qpf = array_filter($qp, static fn($p) => $p !== 'sort-field', ARRAY_FILTER_USE_KEY);
+        @endphp
+        <th scope="col"><a href="/?sort-field=name&amp;{{ http_build_query($qpf) }}">Name</a>
+        </th>
+        <th scope="col"><a href="/?sort-field=email&amp;{{ http_build_query($qpf) }}">Email</a></th>
+        <th scope="col"><a href="/?sort-field=birthdate&amp;{{ http_build_query($qpf) }}">Birthdate</a>
+        </th>
       </tr>
     </thead>
 
@@ -55,8 +59,10 @@
     </tbody>
   </table>
   <div>
-    {{ $contacts->appends($qp)->links() }}
+    {{ $contacts->appends($qp)->links('pagination::tailwind') }}
   </div>
+
+  @vite('resources/js/app.ts')
 </body>
 
 </html>
